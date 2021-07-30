@@ -52,8 +52,8 @@ int NumberLinesReader::ReadNextNumber()
     int temp;
     try
     {
-        //if(eof)
-        //    throw ENFEx();
+        if(Stream.eof( ))
+            throw ENFEx();
         Stream >> temp;
     }
     catch (...)
