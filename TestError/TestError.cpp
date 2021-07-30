@@ -74,13 +74,13 @@ int main()
         while (true)
             sum += reader.ReadNextNumber();
     }
-    catch (const FileNotOpenedEx& str)
+    catch (const FileNotOpenedEx& ex)
     {
-        std::cout << "Cannot open file\n";
+        std::cout << ex.what() << "\n";
     }
-    catch (const ENFEx& str)
+    catch (const ENFEx& ex)
     {
-        std::cout << "File read\n";
+        std::cout << ex.what() <<"\n";
     }
     catch (...)
     {
