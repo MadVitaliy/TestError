@@ -1,7 +1,35 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <exception>
 
+class FileNotOpenedEx : public std::exception
+{
+public:
+    FileNotOpenedEx()
+    {};
+    ~FileNotOpenedEx() 
+    {};
+
+    const char* what() const override 
+    {
+        return "File not opened";
+    }
+};
+
+class ENFEx : public std::exception
+{
+public:
+    ENFEx()
+    {};
+    ~ENFEx()
+    {};
+
+    const char* what() const override
+    {
+        return "End Of File";
+    }
+};
 
 class NumberLinesReader
 {
@@ -16,7 +44,7 @@ bool NumberLinesReader::Open(const std::string& fileName)
 {
     Stream.open(fileName);
     if (!Stream.is_open())
-        throw std::string("File not opened");
+        throw FileNotOpenedEx();
 }
 
 int NumberLinesReader::ReadNextNumber()
@@ -25,9 +53,8 @@ int NumberLinesReader::ReadNextNumber()
     try
     {
         //if(eof)
-        //    throw std::string("EOF");
+        //    throw ENFEx();
         Stream >> temp;
-
     }
     catch (...)
     {
@@ -47,12 +74,13 @@ int main()
         while (true)
             sum += reader.ReadNextNumber();
     }
-    catch (const std::string& str)
+    catch (const FileNotOpenedEx& str)
     {
-        if(str == "File not opened")
-            std::cout << "Cannot open file\n";
-        if (str == "EPF")
-            std::cout << "File read\n";
+        std::cout << "Cannot open file\n";
+    }
+    catch (const ENFEx& str)
+    {
+        std::cout << "File read\n";
     }
     catch (...)
     {
