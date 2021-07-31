@@ -2,6 +2,8 @@
 #include <fstream>
 #include <string>
 #include <exception>
+#include <optional>
+
 
 class FileNotOpenedEx : public std::exception
 {
@@ -17,70 +19,59 @@ public:
     }
 };
 
-class ENFEx : public std::exception
-{
-public:
-    ENFEx()
-    {};
-    ~ENFEx()
-    {};
-
-    const char* what() const override
-    {
-        return "End Of File";
-    }
-};
-
 class NumberLinesReader
 {
 public:
-    bool Open(const std::string& fileName);
-    int ReadNextNumber();
+    NumberLinesReader(const std::string& fileName);
+    std::optional<int> ReadNextNumber();
 private:
     std::ifstream Stream;
 };
 
-bool NumberLinesReader::Open(const std::string& fileName)
+NumberLinesReader::NumberLinesReader(const std::string& fileName) : Stream(fileName)
 {
-    Stream.open(fileName);
-    if (!Stream.is_open())
+    if (!Stream.good())
         throw FileNotOpenedEx();
 }
 
-int NumberLinesReader::ReadNextNumber()
+std::optional<int> NumberLinesReader::ReadNextNumber()
 {
-    int temp;
+    std::optional<int> res;
     try
     {
+        if (!Stream.is_open())
+            throw FileNotOpenedEx();
         if(Stream.eof( ))
-            throw ENFEx();
+            return res; //return empty std::optional
+
+        int temp;
         Stream >> temp;
+        res = temp;
+        return res;
     }
     catch (...)
     {
         throw;
     }
-    return temp;
 }
 
 int main()
 {
-    NumberLinesReader reader;
     int sum = 0;
     try
     { 
-        reader.Open("numbers.txt");
-      
-        while (true)
-            sum += reader.ReadNextNumber();
+        NumberLinesReader reader(std::move(std::string("C:/Users/vomelchenko/source/repos/TestError/Text.txt")));
+
+        std::optional<int> value = reader.ReadNextNumber();
+        while (value) 
+        {
+            sum += value.value();
+            value = reader.ReadNextNumber();
+        }
     }
     catch (const FileNotOpenedEx& ex)
     {
         std::cout << ex.what() << "\n";
-    }
-    catch (const ENFEx& ex)
-    {
-        std::cout << ex.what() <<"\n";
     }
     catch (...)
     {
